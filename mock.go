@@ -99,6 +99,31 @@ func (m *Mock) Update(distinctId string, u *Update) error {
 		for key, val := range u.Properties {
 			p.Properties[key] = val
 		}
+	case "$union":
+		for key, val := range u.Properties {
+			curArray := p.Properties[key]
+			if curArray == nil {
+				p.Properties[key] = val
+			} else {
+				switch a := curArray.(type) {
+				case []string:
+					for _, newVal := range u.Properties[key].([]string) {
+						for _, oldVal := range a {
+							if oldVal == newVal {
+								goto next
+							}
+						}
+						a = append(a, newVal)
+					next:
+					}
+
+					p.Properties[key] = a
+				default:
+					return errors.New("Can only do $union operation on an array")
+				}
+			}
+		}
+
 	default:
 		return errors.New("mixpanel.Mock only supports the $set operation")
 	}

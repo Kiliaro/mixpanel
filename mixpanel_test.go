@@ -134,3 +134,36 @@ func TestError(t *testing.T) {
 		t.Error("Got bad error for track", err)
 	}
 }
+
+func TestUpdateUnion(t *testing.T) {
+	client := NewMock()
+
+	updates := []Update{
+		Update{
+			Operation:  "$union",
+			IP:         "127.0.0.1",
+			Properties: map[string]interface{}{"f": []string{"a"}},
+		},
+		Update{
+			Operation:  "$union",
+			IP:         "127.0.0.1",
+			Properties: map[string]interface{}{"f": []string{"b"}},
+		},
+		Update{
+			Operation:  "$union",
+			IP:         "127.0.0.1",
+			Properties: map[string]interface{}{"f": []string{"c", "a", "b", "d"}},
+		},
+	}
+
+	for _, u := range updates {
+		if err := client.Update("1", &u); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	f := client.people("1").Properties["f"]
+	if !reflect.DeepEqual(f, []string{"a", "b", "c", "d"}) {
+		t.Error("Bad union:", f)
+	}
+}
