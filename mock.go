@@ -88,7 +88,9 @@ func (m *Mock) Update(distinctId string, u *Update) error {
 	p := m.people(distinctId)
 
 	if u.IP != "" {
-		p.IP = u.IP
+		if u.IP != "0" || p.IP == "" {
+			p.IP = u.IP
+		}
 	}
 	if u.Timestamp != nil && u.Timestamp != IgnoreTime {
 		p.Time = u.Timestamp

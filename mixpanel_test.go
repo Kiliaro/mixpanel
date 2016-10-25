@@ -195,3 +195,30 @@ func TestUpdateSetOnce(t *testing.T) {
 		t.Error("Bad set_once:", f)
 	}
 }
+
+func TestIPOnlyChangesOnNonZero(t *testing.T) {
+	client := NewMock()
+
+	updates := []Update{
+		Update{
+			Operation:  "$set",
+			IP:         "127.0.0.1",
+			Properties: map[string]interface{}{"foo": "1"},
+		},
+		Update{
+			Operation:  "$set",
+			IP:         "0",
+			Properties: map[string]interface{}{"bar": "2"},
+		},
+	}
+
+	for _, u := range updates {
+		if err := client.Update("1", &u); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	if ip := client.people("1").IP; ip != "127.0.0.1" {
+		t.Error("Bad IP was set:", ip)
+	}
+}
