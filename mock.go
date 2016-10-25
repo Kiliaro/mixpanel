@@ -99,6 +99,12 @@ func (m *Mock) Update(distinctId string, u *Update) error {
 		for key, val := range u.Properties {
 			p.Properties[key] = val
 		}
+	case "$set_once":
+		for key, val := range u.Properties {
+			if _, exists := p.Properties[key]; !exists {
+				p.Properties[key] = val
+			}
+		}
 	case "$union":
 		for key, val := range u.Properties {
 			curArray := p.Properties[key]

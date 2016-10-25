@@ -167,3 +167,31 @@ func TestUpdateUnion(t *testing.T) {
 		t.Error("Bad union:", f)
 	}
 }
+
+func TestUpdateSetOnce(t *testing.T) {
+	client := NewMock()
+
+	updates := []Update{
+		Update{
+			Operation:  "$set_once",
+			IP:         "127.0.0.1",
+			Properties: map[string]interface{}{"foo": "1"},
+		},
+		Update{
+			Operation:  "$set_once",
+			IP:         "127.0.0.1",
+			Properties: map[string]interface{}{"foo": "2", "bar": "3"},
+		},
+	}
+
+	for _, u := range updates {
+		if err := client.Update("1", &u); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	f := client.people("1").Properties
+	if !reflect.DeepEqual(f, map[string]interface{}{"foo": "1", "bar": "3"}) {
+		t.Error("Bad set_once:", f)
+	}
+}
