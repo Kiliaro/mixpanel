@@ -107,6 +107,14 @@ func (m *Mock) Update(distinctId string, u *Update) error {
 				p.Properties[key] = val
 			}
 		}
+	case "$append":
+		for key, val := range u.Properties {
+			if array, ok := p.Properties[key]; ok {
+				p.Properties[key] = append(array.([]interface{}), val)
+			} else {
+				p.Properties[key] = []interface{}{val}
+			}
+		}
 	case "$union":
 		for key, val := range u.Properties {
 			curArray := p.Properties[key]

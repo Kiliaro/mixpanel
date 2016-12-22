@@ -168,6 +168,39 @@ func TestUpdateUnion(t *testing.T) {
 	}
 }
 
+func TestUpdateAppend(t *testing.T) {
+	client := NewMock()
+
+	updates := []Update{
+		Update{
+			Operation:  "$append",
+			IP:         "127.0.0.1",
+			Properties: map[string]interface{}{"f": "a"},
+		},
+		Update{
+			Operation:  "$append",
+			IP:         "127.0.0.1",
+			Properties: map[string]interface{}{"f": 5},
+		},
+		Update{
+			Operation:  "$append",
+			IP:         "127.0.0.1",
+			Properties: map[string]interface{}{"f": []string{"c", "a"}},
+		},
+	}
+
+	for _, u := range updates {
+		if err := client.Update("1", &u); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	f := client.people("1").Properties["f"]
+	if !reflect.DeepEqual(f, []interface{}{"a", 5, []string{"c", "a"}}) {
+		t.Error("Bad append:", f)
+	}
+}
+
 func TestUpdateSetOnce(t *testing.T) {
 	client := NewMock()
 
